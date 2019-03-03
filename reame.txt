@@ -1,0 +1,7 @@
+code    errror
+200     Success
+201      Data insert Success
+204      Data not found
+
+400      Missing data
+401      Incorrect credential/Token expired
