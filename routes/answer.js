@@ -7,6 +7,8 @@ const ansController = require('../controller/answer');
 const router = express.Router();
 
 router.post('/addAnswer', authCheck, ansController.addAnswer);
+router.post('/removeAnswer', authCheck, ansController.removeAnswer);
+
 
 console.log('In routes');
 

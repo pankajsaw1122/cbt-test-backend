@@ -8,7 +8,7 @@ exports.sendResponseData = (messageData, datas, res) => {
 }
 
 exports.ErrorResponse = (messageData, datas, next) => {
-    const error = new Error("Invalid data or some data is missing, pls try again");
+    const error = new Error(messageData);
         error.statusCode = 400;
         error.data = {};
         next(error);

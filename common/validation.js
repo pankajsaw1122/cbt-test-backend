@@ -9,7 +9,9 @@ const candidateRegisterSchema = Joi.object().keys({
 const adminRegisterSchema = Joi.object().keys({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
-    email: Joi.string().email({ minDomainAtoms: 2 }).required(),
+    email: Joi.string().email({
+        minDomainAtoms: 2
+    }).required(),
     mobile: Joi.string().regex(/^[0-9]{10}$/).required(),
     pswd: Joi.string().regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,12}$/).required()
 });
@@ -19,11 +21,15 @@ const authValidSchema = Joi.object().keys({
     pswd: Joi.string().min(3).required()
 });
 
+authCandtValidSchema = Joi.object().keys({
+    userId: Joi.string().required(),
+    pswd: Joi.string().min(3).required()
+});
+
 const examValidSchema = Joi.object().keys({
     adminId: Joi.number().required(),
     examName: Joi.string().required(),
-    examDate: Joi.date().iso().required(),
-    examTime: Joi.string().required(),
+    totalQues: Joi.number().required(),
     examMinute: Joi.number().required(),
     totalMarks: Joi.number().required()
 
@@ -36,12 +42,43 @@ const quesCategValidateSchema = Joi.object().keys({
     totalMarks: Joi.number().required(),
 });
 
-const addQuesValidateSchema = Joi.object().keys({
+const quesValidateSchema = Joi.object().keys({
     examId: Joi.number().required(),
-    quesCategId: Joi.number().required(),
+    categId: Joi.number().required(),
+    choiceType: Joi.number().required(),
     quesText: Joi.string().required(),
-    mark: Joi.number().required(),
-    negMark: Joi.number().required()
+    marks: Joi.number().required(),
+    negMark: Joi.number().required(),
+    choice1: Joi.string().required(),
+    choice2: Joi.string().required(),
+    choice3: Joi.string().required(),
+    choice4: Joi.string().required(),
+    choiceA: Joi.boolean().required(),
+    choiceB: Joi.boolean().required(),
+    choiceC: Joi.boolean().required(),
+    choiceD: Joi.boolean().required()
+});
+
+const quesUpdateValidateSchema = Joi.object().keys({
+    editId: Joi.number().required(),
+    examId: Joi.number().required(),
+    categId: Joi.number().required(),
+    choiceType: Joi.number().required(),
+    quesText: Joi.string().required(),
+    marks: Joi.number().required(),
+    negMark: Joi.number().required(),
+    optionId1: Joi.number().required(),
+    optionId2: Joi.number().required(),
+    optionId3: Joi.number().required(),
+    optionId4: Joi.number().required(),
+    choice1: Joi.string().required(),
+    choice2: Joi.string().required(),
+    choice3: Joi.string().required(),
+    choice4: Joi.string().required(),
+    choiceA: Joi.boolean().required(),
+    choiceB: Joi.boolean().required(),
+    choiceC: Joi.boolean().required(),
+    choiceD: Joi.boolean().required()
 });
 
 const addChoiceValidateSchema = Joi.object().keys({
@@ -51,40 +88,205 @@ const addChoiceValidateSchema = Joi.object().keys({
 });
 
 const addAnsValidateSchema = Joi.object().keys({
-    candidateId: Joi.number().required(),
+    userId: Joi.number().required(),
+    exam_id: Joi.number().required(),
+    categ_id: Joi.number().required(),
     quesId: Joi.number().required(),
-    choiceId: Joi.any().required()
+});
+
+const candidateValidateSchema = Joi.object().keys({
+    userId: Joi.number().required(),
+    fname: Joi.string().min(3).required(),
+    lname: Joi.string().required(),
+    roll_no: Joi.string().required(),
+    classes: Joi.string().required(),
+    email: Joi.string().email({
+        minDomainAtoms: 2
+    }).required(),
+    mobile_no: Joi.string().regex(/^[0-9]{10}$/).required(),
+    password: Joi.number().min(4).required()
+});
+
+const allowLoginValidateSchema = Joi.object().keys({
+    userId: Joi.number().required(),
+    exam_id: Joi.number().required(),
+    classes: Joi.string().required(),
+    setMasterPassword: Joi.string().required(),
+});
+
+const allowstartExamValidateSchema = Joi.object().keys({
+    userId: Joi.number().required(),
+    exam_id: Joi.number().required(),
+    classes: Joi.string().required()
+});
+
+
+const resultSchema = Joi.object().keys({
+    userId: Joi.number().required(),
+    examId: Joi.number().required(),
+    totalAnswerCount: Joi.number().required(),
+    positiveMark: Joi.number().required(),
+    positiveCount: Joi.number().required(),
+    negMark: Joi.number().required(),
+    negCount: Joi.number().required(),
+    finalExamMark: Joi.number().required()
 });
 
 // Return result.
 exports.candidateRegisterValidate = (data) => {
-    return Joi.validate({ firstName: data[0], rollNo: data[2], classes: data[3] }, candidateRegisterSchema);
+    return Joi.validate({
+        firstName: data[0],
+        rollNo: data[2],
+        classes: data[3]
+    }, candidateRegisterSchema);
 }
 
 exports.adminRegisterValidate = (data) => {
-    return Joi.validate({ firstName: data[0], lastName: data[1], email: data[2], mobile: data[3], pswd: data[4] }, adminRegisterSchema);
+    return Joi.validate({
+        firstName: data[0],
+        lastName: data[1],
+        email: data[2],
+        mobile: data[3],
+        pswd: data[4]
+    }, adminRegisterSchema);
 }
 
 exports.authValidate = (data) => {
-    return Joi.validate({ userId: data[0], pswd: data[1] }, authValidSchema);
+    return Joi.validate({
+        userId: data[0],
+        pswd: data[1]
+    }, authValidSchema);
+}
+
+exports.authCandtValidate = (data) => {
+    return Joi.validate({
+        userId: data[0],
+        pswd: data[1]
+    }, authCandtValidSchema);
 }
 
 exports.examValidate = (data) => {
-    return Joi.validate({ adminId: data[0], examName: data[1], examDate: data[3], examTime: data[4], examMinute: data[5], totalMarks: data[6] }, examValidSchema);
+    return Joi.validate({
+        adminId: data[0],
+        examName: data[1],
+        examMinute: data[2],
+        totalQues: data[3],
+        totalMarks: data[4]
+    }, examValidSchema);
 }
+
 
 exports.quesCategValidate = (data) => {
-    return Joi.validate({ examId: data[0], toatlQues: data[1], categName: data[2], totalMarks: data[3]}, quesCategValidateSchema);
+    return Joi.validate({
+        examId: data[0],
+        toatlQues: data[1],
+        categName: data[2],
+        totalMarks: data[3]
+    }, quesCategValidateSchema);
 }
 
-exports.addQuesValidate = (data) => {
-    return Joi.validate({ examId: data[0], quesCategId: data[1], quesText: data[2], mark: data[3], negMark: data[4]}, addQuesValidateSchema);
+exports.quesValidate = (data) => {
+    return Joi.validate({
+            examId: data[0],
+            categId: data[1],
+            choiceType: data[2],
+            quesText: data[3],
+            marks: data[4],
+            negMark: data[5],
+            choice1: data[6],
+            choice2: data[7],
+            choice3: data[8],
+            choice4: data[9],
+            choiceA: data[10],
+            choiceB: data[11],
+            choiceC: data[12],
+            choiceD: data[13]
+        },
+        quesValidateSchema);
+}
+
+exports.quesUpdateValidate = (data) => {
+    return Joi.validate({
+            editId: data[0],
+            examId: data[1],
+            categId: data[2],
+            choiceType: data[3],
+            quesText: data[4],
+            marks: data[5],
+            negMark: data[6],
+            optionId1: data[7],
+            optionId2: data[8],
+            optionId3: data[9],
+            optionId4: data[10],
+            choice1: data[11],
+            choice2: data[12],
+            choice3: data[13],
+            choice4: data[14],
+            choiceA: data[15],
+            choiceB: data[16],
+            choiceC: data[17],
+            choiceD: data[18]
+        },
+        quesUpdateValidateSchema);
 }
 
 exports.addChoiceValidate = (data) => {
-    return Joi.validate({ quesId: data[0], choiceTypeId: data[1], choiceText: data[2]}, addChoiceValidateSchema);
+    return Joi.validate({
+        quesId: data[0],
+        choiceTypeId: data[1],
+        choiceText: data[2]
+    }, addChoiceValidateSchema);
 }
 
-exports.addAnsValidate = (data) => {
-    return Joi.validate({ candidateId: data[0], quesId: data[1], choiceId: data[2]}, addAnsValidateSchema);
+exports.ansValidate = (data) => {
+    return Joi.validate({
+        userId: data[0],
+        exam_id: data[1],
+        categ_id: data[2],
+        quesId: data[3],
+    }, addAnsValidateSchema);
 }
+
+exports.candidateValidate = (data) => {
+    return Joi.validate({
+        userId: data[0],
+        fname: data[1],
+        lname: data[2],
+        roll_no: data[3],
+        classes: data[4],
+        email: data[5],
+        mobile_no: data[6],
+        password: data[7]
+    }, candidateValidateSchema);
+}
+
+exports.allowLoginValidate = (data) => {
+    return Joi.validate({
+        userId: data[0],
+        exam_id: data[1],
+        classes: data[2],
+        setMasterPassword: data[3],
+    }, allowLoginValidateSchema);
+}
+
+exports.allowStartExamValidate = (data) => {
+    return Joi.validate({
+        userId: data[0],
+        exam_id: data[1],
+        classes: data[2]
+    }, allowstartExamValidateSchema);
+}
+
+exports.resultValidate = (data) => {
+    return Joi.validate({
+        userId: data[0],
+        examId: data[1],
+        totalAnswerCount: data[2],
+        positiveCount: data[3],
+        positiveMark: data[4],
+        negCount: data[5],
+        negMark: data[6],
+        finalExamMark: data[7]
+    }, resultSchema);
+}
+

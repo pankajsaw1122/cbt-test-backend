@@ -1,7 +1,7 @@
 {
-  "name": "cbt-demo",
+  "name": "cbt-api",
   "version": "1.0.0",
-  "description": "demo for cbt application",
+  "description": "api for cbt application",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

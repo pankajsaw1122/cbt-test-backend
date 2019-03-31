@@ -9,7 +9,12 @@ const router = express.Router();
 router.post('/addExam', authCheck, examController.addExam);
 router.post('/updateExam', authCheck, examController.updateExam);
 router.get('/getExamData', authCheck, examController.getExamData);
+router.get('/fetchQuestionsList', authCheck, examController.fetchQuestionsList);
+router.get('/getExamQuesData', authCheck, examController.getExamQuesData);
+
 router.delete('/deleteExam', authCheck, examController.deleteExam);
+router.get('/finishExam', authCheck, examController.finishExam);
+
 
 
 console.log('In routes');

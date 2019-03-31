@@ -5,10 +5,14 @@ const authCheck = require('../middleware/auth-token');
 const quesController = require('../controller/ques');
 
 const router = express.Router();
+router.get('/getQuesType', authCheck, quesController.getQuesType);
 
-router.post('/addQuesCateg', authCheck, quesController.addQuesCateg);
 router.post('/addQues', authCheck, quesController.addQues);
-router.post('/addChoice', authCheck, quesController.addChoice);
+router.post('/updateQues', authCheck, quesController.updateQues);
+
+router.get('/getQuesData', authCheck, quesController.getQuesData);
+router.delete('/deleteQues', authCheck, quesController.deleteQues);
+
 
 // router.post('/addQues', authCheck, quesController.addQues);
 

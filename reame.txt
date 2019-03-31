@@ -5,3 +5,8 @@ code    errror
 
 400      Missing data
 401      Incorrect credential/Token expired
+
+problems - 
+
+i) Delete relavent datas.
+
