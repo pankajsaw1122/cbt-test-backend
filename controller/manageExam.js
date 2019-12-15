@@ -10,9 +10,7 @@ exports.getExamInfo = (req, res, next) => {
         error.statusCode = 400;
         error.data = error;
         throw error;
-    } else {
-        console.log('my params = ' + req.query.id);
-        
+    } else {        
             return db.execute(
                     'select exam.exam_name, exam.exam_minute, exam.total_ques, exam.total_marks, ques_categ.total_ques as total_categ_ques, ques_categ.categ_name, ques_categ.total_marks as categ_marks, questions.ques_categ_id, questions.marks from exam LEFT JOIN ques_categ ON exam.id = ques_categ.exam_id LEFT JOIN questions ON ques_categ.id = questions.ques_categ_id where exam.admin_id = ? AND exam.id = ?',
                     [req.userId, req.query.id])
@@ -45,15 +43,12 @@ exports.allowLogin = (req, res, next) => {
     let valid = validation.allowLoginValidate(fields);
 
     if (valid.error !== null) {
-        console.log(valid.error)
         const error = new Error("Invalid data or some data is missing, pls try again");
         error.statusCode = 400;
         error.data = valid.error;
         throw error;
         // sendResponse.sendResponseData(400, "failed", "Invalid data or some data is missing, pls try again", {}, res);
     } else {
-        console.log("In else block");
-        console.log(fields);
         let query = 'update candidates SET password = ?, allow_login = ?, allowed_exam_id = ?, updated_on=? where classes = ? AND admin_id = ?';
         let param = [fields[3], 1, fields[1], fields[4], fields[2], fields[0]];
         if (fields[2] === '0') {
@@ -64,7 +59,6 @@ exports.allowLogin = (req, res, next) => {
                 query, param
             )
             .then(results => {
-                console.log(results);
                 sendResponse.sendResponseData("Login allowed successfully", results, res);
             }).catch(err => {
                 console.log(err)
@@ -82,15 +76,11 @@ exports.allowStartExam = (req, res, next) => {
     let valid = validation.allowStartExamValidate(fields);
 
     if (valid.error !== null) {
-        console.log(valid.error)
         const error = new Error("Invalid data or some data is missing, pls try again");
         error.statusCode = 400;
         error.data = valid.error;
         throw error;
-        // sendResponse.sendResponseData(400, "failed", "Invalid data or some data is missing, pls try again", {}, res);
     } else {
-        console.log("In else block");
-        console.log(fields);
         let query = 'update candidates SET allow_exam = ?, allowed_exam_id = ?, updated_on=? where classes = ? AND admin_id = ?';
         let param = [1, fields[1], fields[3], fields[2], fields[0]];
         if (fields[2] === '0') {
@@ -101,7 +91,6 @@ exports.allowStartExam = (req, res, next) => {
                 query, param
             )
             .then(results => {
-                console.log(results);
                 sendResponse.sendResponseData("Exam Start allowed successfully", results, res);
             }).catch(err => {
                 console.log(err)
@@ -121,14 +110,11 @@ exports.deleteCandt = (req, res, next) => {
         error.data = error;
         throw error;
     } else {
-        console.log('my params = ' + req.query.id);
-
         return db.execute(
                 'delete from candidates where id = ?',
                 [req.query.id])
             .then(results => {
                 results = results[0];
-                console.log(results);
                 sendResponse.sendResponseData("Candidate delete successfull", results, res);
             }).catch(err => {
                 console.log(err)

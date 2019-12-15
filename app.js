@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 
 const manageExamRoutes = require('./routes/manageExam');
 const registerRoutes = require('./routes/register');
@@ -11,10 +12,15 @@ const quesRoutes = require('./routes/ques');
 const ansRoutes = require('./routes/answer');
 const candtRoutes = require('./routes/candidates');
 const resultRoutes = require('./routes/result');
+const uploadRoutes = require('./routes/uploads');
 
 const app = express();
 app.use(bodyParser.json()); 
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.static('./public'));
+app.use(express.static((path.join(__dirname, 'public'))));
+
 app.use('/manageExam', manageExamRoutes);
 app.use('/register', registerRoutes);
 app.use('/admin', loginRoutes);
@@ -25,6 +31,7 @@ app.use('/ques', quesRoutes);
 app.use('/answer', ansRoutes);
 app.use('/candidate', candtRoutes);
 app.use('/result', resultRoutes);
+app.use('/upload', uploadRoutes);
 
 
 app.use((error, req, res, next) => {

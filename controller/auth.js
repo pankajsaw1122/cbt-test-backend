@@ -10,19 +10,16 @@ exports.authAdmin = (req, res, next) => {
     let valid = validation.authValidate(fields);
 
     if (valid.error !== null) {
-        console.log(valid.error)
         const error = new Error("Invalid data or some data is missing, pls try again");
         error.statusCode = 400;
         error.data = valid.error;
         throw error;
         // sendResponse.sendResponseData(400, "failed", "Invalid data or some data is missing, pls try again", {}, res);
     } else {
-        console.log("In else block");
         db.query(
-                'Select id, fname, mobile, password from admin where email = ?',
-                [fields[0]], {})
+            'Select id, fname, mobile, password from admin where email = ?',
+            [fields[0]], {})
             .then(results => {
-                console.log(results[0]);
                 if (results[0].length === 0) {
                     const err = new Error("Data not found");
                     err.statusCode = 401;
@@ -30,12 +27,11 @@ exports.authAdmin = (req, res, next) => {
                     err.data = [];
                     next(err);
                 } else {
-                    console.log(results[0][0].password);
                     return bcrypt.compare(fields[1], results[0][0].password, function (err, resp) {
                         if (resp == true) {
                             const token = jwt.sign({
-                                    userId: results[0][0].id
-                                },
+                                userId: results[0][0].id
+                            },
                                 'weareworkingoncbttestapplication', {
                                     expiresIn: '6h'
                                 }
@@ -50,7 +46,6 @@ exports.authAdmin = (req, res, next) => {
                     });
                 }
             }).catch(err => {
-                console.log(err)
                 err.statusCode = 500;
                 err.message = "error while login please try again";
                 err.data = err.sqlMessage;
@@ -60,26 +55,40 @@ exports.authAdmin = (req, res, next) => {
 
 }
 
+exports.changePassword = (req, res, next) => {
+    const fields = [req.body.email, req.body.password, moment().format('YYYY-MM-DD HH:MM:ss')];
+        bcrypt.hash(fields[1], 4).then(function (hash) {
+            return db.execute(
+                'update admin set password = ?, updated_on = ? where email = ?',
+                [hash, fields[2], fields[0]], {
+                });
+        }).then(results => {
+            sendResponse.sendResponseData("Password reset successfull", {
+                password: results,
+                email: fields[2],
+            }, res);
+        }).catch(err => {
+            err.statusCode = 400;
+            err.message = "error in updating data";
+            err.data = err.sqlMessage;
+            next(err);
+        });
+    }
+
 
 exports.authCandt = (req, res, next) => {
-    const fields = [req.body.userId.toString(), req.body.password.toString()]
-    console.log(fields);
+    const fields = [req.body.rollNo, req.body.password.toString()]
     let valid = validation.authCandtValidate(fields);
-    console.log(valid);
     if (valid.error !== null) {
-        console.log(valid.error)
         const error = new Error("Invalid data or some data is missing, pls try again");
         error.statusCode = 400;
         error.data = valid.error;
         throw error;
-        // sendResponse.sendResponseData(400, "failed", "Invalid data or some data is missing, pls try again", {}, res);
     } else {
-        console.log("In else block");
-        db.query(
-                'Select candidates.id, candidates.fname, candidates.lname, candidates.roll_no, candidates.classes, candidates.email, candidates.mobile_no, candidates.allow_login, candidates.allow_exam, candidates.password, exam.id as examId, exam.exam_name from candidates LEFT JOIN exam ON candidates.allowed_exam_id = exam.id where candidates.email = ? OR candidates.mobile_no = ?',
-                [fields[0], fields[0]], {})
+        db.execute(
+            'Select candidates.id, candidates.fname, candidates.lname, candidates.roll_no, candidates.classes, candidates.email, candidates.mobile_no, candidates.allow_login, candidates.allow_exam, candidates.password, exam.id as examId, exam.exam_name from candidates LEFT JOIN exam ON candidates.allowed_exam_id = exam.id where candidates.roll_no = ?',
+            [fields[0]])
             .then(results => {
-                console.log(results[0]);
                 if (results[0].length === 0) {
                     const err = new Error("Data not found");
                     err.statusCode = 401;
@@ -87,16 +96,16 @@ exports.authCandt = (req, res, next) => {
                     err.data = [];
                     next(err);
                 } else {
-                    console.log(results[0][0].password);
                     if (results[0][0].password == fields[1]) {
                         const token = jwt.sign({
-                                userId: results[0][0].id
-                            },
+                            userId: results[0][0].id
+                        },
                             'weareworkingoncbttestapplication', {
                                 expiresIn: '6h'
                             }
                         );
                         if (results[0][0].allow_login === 1) {
+                            console.log(results[0][0]);
                             sendResponse.sendResponseData("User login successfull", {
                                 userData: results[0][0],
                                 token: token
@@ -114,8 +123,8 @@ exports.authCandt = (req, res, next) => {
                     }
                 }
             }).catch(err => {
-                console.log(err)
                 err.statusCode = 500;
+                console.log(err);
                 err.message = "error while login please try again";
                 err.data = err.sqlMessage;
                 next(err);

@@ -7,8 +7,6 @@ const pool = mysql.createPool({
   database: 'cbt-test',
   multipleStatements: true
 });
-
-
 module.exports = pool.promise();
 
 // module.exports = pool;

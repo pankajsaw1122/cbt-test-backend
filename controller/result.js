@@ -69,3 +69,38 @@ exports.saveResult = (req, res, next) => {
         });
     }
 }
+
+exports.getResultData = (req, res, next) => {
+    console.log(req.query.examId);
+    console.log(req.query.classes);
+
+
+    if (!req.userId || !req.query.examId || !req.query.classes) {
+        console.log(valid.error)
+        const error = new Error("Invalid data or some data is missing, pls try again");
+        error.statusCode = 400;
+        error.data = valid.error;
+        throw error;
+    } else {
+        let query = '';
+        let param = [];
+        if(req.query.classes === '0' || req.query.classes === 0) {
+            query = 'select candidates.fname, candidates.lname, candidates.roll_no, candidates.classes, exam.exam_name, result.total_ans_count, result.positive_count, result.positive_mark, result.neg_count, result.neg_mark, result.total_marks from result LEFT JOIN candidates ON result.candt_id = candidates.id LEFT JOIN exam ON result.exam_id = exam.id where result.exam_id = ? ORDER BY result.total_marks desc';
+            param = [req.query.examId];
+        } else {
+            query = 'select candidates.fname, candidates.lname, candidates.roll_no, candidates.classes, exam.exam_name, result.total_ans_count, result.positive_count, result.positive_mark, result.neg_count, result.neg_mark, result.total_marks from result LEFT JOIN candidates ON result.candt_id = candidates.id LEFT JOIN exam ON result.exam_id = exam.id where result.exam_id = ? AND candidates.classes = ? ORDER BY result.total_marks desc';
+            param = [req.query.examId, req.query.classes];
+        }
+        return db.execute(
+                query, param)
+            .then(results => {
+                sendResponse.sendResponseData("Data fetched successfully", results[0], res);
+            }).catch(err => {
+                console.log(err)
+                err.statusCode = 400;
+                err.message = "error in fetching data";
+                err.data = err.sqlMessage;
+                next(err);
+            });
+    }
+}

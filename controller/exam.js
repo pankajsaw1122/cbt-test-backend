@@ -17,14 +17,12 @@ exports.addExam = (req, res, next) => {
   console.log(fields);
   let valid = validation.examValidate(fields);
   if (valid.error !== null) {
-    console.log(valid.error);
     const error = new Error(
       "Invalid data or some data is missing, pls try again"
     );
     error.statusCode = 400;
     error.data = valid.error;
     throw error;
-    // sendResponse.sendResponseData(400, "failed", "Invalid data or some data is missing, pls try again", {}, res);
   } else {
     console.log("In else block");
     return db
@@ -33,7 +31,6 @@ exports.addExam = (req, res, next) => {
         [fields[0], fields[1], fields[2], fields[3], fields[4], fields[5]]
       )
       .then(results => {
-        console.log(results);
         sendResponse.sendResponseData("Exam Created successful", results, res);
       })
       .catch(err => {
@@ -56,11 +53,8 @@ exports.updateExam = (req, res, next) => {
     moment().format("YYYY-MM-DD HH:MM:ss"),
     req.body.editId
   ];
-  console.log("print fields");
-  console.log(fields);
   let valid = validation.examValidate(fields);
   if (valid.error !== null) {
-    console.log(valid.error);
     const error = new Error(
       "Invalid data or some data is missing, pls try again"
     );
@@ -69,14 +63,12 @@ exports.updateExam = (req, res, next) => {
     throw error;
     // sendResponse.sendResponseData(400, "failed", "Invalid data or some data is missing, pls try again", {}, res);
   } else {
-    console.log("In else block");
     return db
       .execute(
-        "update exam set exam_name=?, exam_minute=?, total_marks=?, total_ques=?, updated_on=? where id = ?",
+        "update exam set exam_name=?, total_ques=?, exam_minute=?, total_marks=?, updated_on=? where id = ?",
         [fields[1], fields[2], fields[3], fields[4], fields[5], fields[6]]
       )
       .then(results => {
-        console.log(results);
         sendResponse.sendResponseData(
           "Exam Data Update successful",
           results,
@@ -101,8 +93,6 @@ exports.fetchQuestionsList = (req, res, next) => {
     error.data = error;
     throw error;
   } else {
-    console.log("my params = " + req.query.id);
-
     return db
       .execute(
         "select questions.id from questions where exam_id = ? ORDER BY RAND()",
@@ -110,7 +100,6 @@ exports.fetchQuestionsList = (req, res, next) => {
       )
       .then(results => {
         results = results[0];
-        console.log(results.length);
         sendResponse.sendResponseData(
           "Exam data found successfully",
           results,
@@ -136,12 +125,10 @@ exports.getExamQuesData = (req, res, next) => {
     error.data = error;
     throw error;
   } else {
-    console.log("my params = " + req.query.id);
-
     return db
       .execute(
-        "select ques_categ.total_ques as total_categ_ques, ques_categ.categ_name, ques_categ.total_marks as categ_marks, questions.id as ques_id, questions.ques_categ_id, questions.ques_type_id, questions.ques_text, questions.marks, questions.neg_mark, choice.id as choiceId, choice.choice_text, answer.choice_id from exam LEFT JOIN ques_categ ON exam.id = ques_categ.exam_id LEFT JOIN questions ON ques_categ.id = questions.ques_categ_id LEFT JOIN choice ON choice.ques_id = questions.id LEFT JOIN answer ON answer.ques_id = questions.id where exam.id = ? AND questions.id = ?",
-        [req.query.examId, req.query.quesId]
+        "select ques_categ.total_ques as total_categ_ques, ques_categ.categ_name, ques_categ.total_marks as categ_marks, questions.id as ques_id, questions.ques_categ_id, questions.ques_type_id, questions.ques_text, questions.ques_image, questions.marks, questions.neg_mark, choice.id as choiceId, choice.choice_text, choice.choice_image, answer.choice_id from exam LEFT JOIN ques_categ ON exam.id = ques_categ.exam_id LEFT JOIN questions ON ques_categ.id = questions.ques_categ_id LEFT JOIN choice ON choice.ques_id = questions.id LEFT JOIN answer ON answer.ques_id = questions.id AND answer.candt_id = ? where exam.id = ? AND questions.id = ?",
+        [req.userId, req.query.examId, req.query.quesId]
       )
       .then(results => {
         results = results[0];
@@ -152,7 +139,8 @@ exports.getExamQuesData = (req, res, next) => {
           for (let j = i; j < i + 4; j++) {
             ques[x].choiceData.push({
               choiceId: results[j].choiceId,
-              choiceText: results[j].choice_text
+              choiceText: results[j].choice_text,
+              choiceImage: results[j].choice_image,
             });
           }
         }
@@ -181,7 +169,6 @@ exports.getExamData = (req, res, next) => {
     error.data = error;
     throw error;
   } else {
-    console.log("my params = " + req.query.id);
     if (!req.query.id) {
       return db
         .execute("select * from exam where admin_id = ? ORDER BY id DESC", [
@@ -189,7 +176,7 @@ exports.getExamData = (req, res, next) => {
         ])
         .then(results => {
           results = results[0];
-          // console.log(results);
+          console.log(results);
           sendResponse.sendResponseData(
             "Exam data found successfully",
             results,
@@ -208,7 +195,6 @@ exports.getExamData = (req, res, next) => {
         .execute("select * from exam where id = ?", [req.query.id])
         .then(results => {
           results = results[0];
-          // console.log(results);
           sendResponse.sendResponseData(
             "Exam data found successfully",
             results,
@@ -236,19 +222,21 @@ exports.deleteExam = (req, res, next) => {
     throw error;
   } else {
     console.log("my params = " + req.query.id);
-
+    // 'delete exam, ques_categ, questions, choice, answer, answer_key from exam INNER JOIN ques_categ INNER JOIN questions INNER JOIN choice INNER JOIN answer INNER JOIN answer_key where exam.id = ques_categ.exam_id AND exam.id = questions.exam_id AND questions.id = choice.ques_id AND exam.id = answer.exam_id AND exam.id = answer_key.exam_id AND admin_id = ? AND exam.id = ?'
     return db
-      .execute("delete from exam where admin_id = ? AND id = ?", [
-        req.userId,
-        req.query.id
-      ])
+      .execute("delete from exam where admin_id = ? AND id = ?", [req.userId, req.query.id])
       .then(results => {
+        return db
+      .execute("delete from ques_categ where exam_id = ?", [req.query.id]);
+      }).then(result => {
+        return db
+      .execute(
+        'delete from questions, choice, answer_key USING questions INNER JOIN choice INNER JOIN answer_key where questions.id = choice.ques_id AND choice.ques_id = answer_key.ques_id AND questions.exam_id = ?', [req.query.id]);
+      }).then(results => {
         results = results[0];
-        console.log(results);
         sendResponse.sendResponseData("Exam delete successfull", results, res);
       })
       .catch(err => {
-        console.log(err);
         err.statusCode = 500;
         err.message = "error in deleting data";
         err.data = err.sqlMessage;
@@ -266,11 +254,9 @@ exports.finishExam = (req, res, next) => {
     error.data = error;
     throw error;
   } else {
-    console.log("my params = " + req.query.id);
     return db.execute("update candidates set allow_login = ?, allow_Exam = ?, isLoggedIn = ?, isGivingExam = ?, finished_exam = ?, updated_on = ? where id = ? AND allowed_exam_id = ?", 
       [0, 0, 0, 0, 1, moment().format("YYYY-MM-DD HH:MM:ss"), req.userId, req.query.id])
       .then(results => {
-        console.log(results);
         sendResponse.sendResponseData("Exam Submitted successfully", results, res);
       })
       .catch(err => {

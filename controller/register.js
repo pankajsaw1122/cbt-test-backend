@@ -44,32 +44,27 @@ exports.registerCandidate = (req, res, next) => {
 
 exports.registerAdmin = (req, res, next) => {
     const fields = [req.body.fName, req.body.lName, req.body.email, req.body.mobile, req.body.password, moment().format('YYYY-MM-DD HH:MM:ss')];
-    console.log(fields);
     let valid = validation.adminRegisterValidate(fields);
 
     if (valid.error !== null) {
-        console.log(valid.error)
         const error = new Error("Invalid data or some data is missing, pls try again");
         error.statusCode = 400;
         error.data = valid.error;
         throw error;
         // sendResponse.sendResponseData(400, "failed", "Invalid data or some data is missing, pls try again", {}, res);
     } else {
-        console.log("In else block");
         bcrypt.hash(fields[4], 10).then(function (hash) {
             return db.execute(
                 'insert into admin (fname, lname, email, mobile, password, created_on) values ( ?, ?, ?, ?, ?, ?)',
                 [fields[0], fields[1], fields[2], fields[3], hash, fields[5]], {
                 });
         }).then(results => {
-            console.log(results);
             sendResponse.sendResponseData("Admin Registration successfull", {
                 fName: fields[0],
                 email: fields[2],
                 mobile: fields[3]
             }, res);
         }).catch(err => {
-            console.log(err)
             err.statusCode = 400;
             err.message = "error in inserting data";
             err.data = err.sqlMessage;
@@ -77,3 +72,5 @@ exports.registerAdmin = (req, res, next) => {
         });
     }
 }
+
+
