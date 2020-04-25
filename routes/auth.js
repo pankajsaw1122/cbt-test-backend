@@ -1,13 +1,14 @@
 const express = require('express');
 
 const authController = require('../controller/auth');
+const authCheck = require('../middleware/auth-token');
 
 const router = express.Router();
 
 router.post('/login', authController.authAdmin);
-router.post('/changePassword', authController.changePassword);
-
 router.post('/candtLogin', authController.authCandt);
-console.log('In routes');
+
+router.post('/changePassword', authCheck, authController.changePassword);
+
 
 module.exports = router;

@@ -13,7 +13,7 @@ const adminRegisterSchema = Joi.object().keys({
         minDomainAtoms: 2
     }).required(),
     mobile: Joi.string().regex(/^[0-9]{10}$/).required(),
-    pswd: Joi.string().regex(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,12}$/).required()
+    pswd: Joi.string().min(6).required()
 });
 
 const authValidSchema = Joi.object().keys({
@@ -120,8 +120,7 @@ const candidateValidateSchema = Joi.object().keys({
 const allowLoginValidateSchema = Joi.object().keys({
     userId: Joi.number().required(),
     exam_id: Joi.number().required(),
-    classes: Joi.string().required(),
-    setMasterPassword: Joi.string().required(),
+    classes: Joi.string().required()
 });
 
 const allowstartExamValidateSchema = Joi.object().keys({
@@ -284,8 +283,7 @@ exports.allowLoginValidate = (data) => {
     return Joi.validate({
         userId: data[0],
         exam_id: data[1],
-        classes: data[2],
-        setMasterPassword: data[3],
+        classes: data[2]
     }, allowLoginValidateSchema);
 }
 

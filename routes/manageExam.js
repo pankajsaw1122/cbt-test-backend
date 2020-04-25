@@ -7,8 +7,10 @@ const router = express.Router();
 router.post('/allowLogin', authCheck, manageExamController.allowLogin);
 router.get('/getExamInfo', authCheck, manageExamController.getExamInfo);
 router.post('/allowStartExam', authCheck, manageExamController.allowStartExam);
-// router.delete('/deleteCandt', authCheck, candtController.deleteCandt);
+router.get('/examStats', authCheck, manageExamController.examStats);
+router.get('/getExamStatus', authCheck, manageExamController.getExamStatus);
+router.post('/stopExam', authCheck, manageExamController.stopExam);
 
-console.log('In routes');
+// router.delete('/deleteCandt', authCheck, candtController.deleteCandt);
 
 module.exports = router;

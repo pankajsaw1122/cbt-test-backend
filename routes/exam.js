@@ -1,7 +1,5 @@
 const express = require('express');
 const authCheck = require('../middleware/auth-token');
-
-
 const examController = require('../controller/exam');
 
 const router = express.Router();
@@ -14,9 +12,5 @@ router.get('/getExamQuesData', authCheck, examController.getExamQuesData);
 
 router.delete('/deleteExam', authCheck, examController.deleteExam);
 router.get('/finishExam', authCheck, examController.finishExam);
-
-
-
-console.log('In routes');
 
 module.exports = router;

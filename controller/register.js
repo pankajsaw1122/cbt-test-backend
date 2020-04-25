@@ -43,7 +43,7 @@ exports.registerCandidate = (req, res, next) => {
 
 
 exports.registerAdmin = (req, res, next) => {
-    const fields = [req.body.fName, req.body.lName, req.body.email, req.body.mobile, req.body.password, moment().format('YYYY-MM-DD HH:MM:ss')];
+    const fields = [req.body.fName, req.body.lName, req.body.email, req.body.mobile, req.body.password, moment().format('YYYY-MM-DD hh:mm:ss')];
     let valid = validation.adminRegisterValidate(fields);
 
     if (valid.error !== null) {

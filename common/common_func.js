@@ -1,6 +1,24 @@
 const sendResponse = require('../common/sendresponse');
 const db = require("../config/db");
 
+exports.answeredModel = {
+     attempted: 0,
+     unanswered: 0,
+     answered: 1
+}
+
+exports.attemptedModel = {
+     attempted: 1,
+     unanswered: 0,
+     answered: 0
+}
+
+exports.unansweredModel = {
+     attempted: 0,
+     unanswered: 1,
+     answered: 0
+}
+
 exports.checkTotalMarks = (id) => {
      let query = '';
      return db.execute(

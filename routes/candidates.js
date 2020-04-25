@@ -10,9 +10,6 @@ router.get('/checkStartExam', authCheck, candtController.checkStartExam);
 router.get('/setLoggedIn', authCheck, candtController.setLoggedIn);
 router.post('/updateCandt', authCheck, candtController.updateCandt);
 router.delete('/deleteCandt', authCheck, candtController.deleteCandt);
-
-
-
-console.log('In routes');
+router.post('/updateLeftTime', authCheck, candtController.updateLeftTime);
 
 module.exports = router;

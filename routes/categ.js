@@ -10,8 +10,4 @@ router.get('/getCategList', authCheck, categController.getCategList);
 router.put('/updateQuesCateg', authCheck, categController.updateQuesCateg);
 router.delete('/deleteQuesCateg', authCheck, categController.deleteQuesCateg);
 
-
-
-console.log('In routes');
-
 module.exports = router;

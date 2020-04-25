@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+const moment = require('moment');
 
 const manageExamRoutes = require('./routes/manageExam');
 const registerRoutes = require('./routes/register');
@@ -33,6 +34,11 @@ app.use('/candidate', candtRoutes);
 app.use('/result', resultRoutes);
 app.use('/upload', uploadRoutes);
 
+console.log(moment().format('00:00:00'));
+
+if(0) {
+  console.log('Condition true');
+}
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -42,4 +48,4 @@ app.use((error, req, res, next) => {
   res.json({ status: statusCode, message: message, data: data });
 });
 
-app.listen(5000);
+app.listen(8080);

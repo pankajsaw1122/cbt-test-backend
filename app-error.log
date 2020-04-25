@@ -1,0 +1,12 @@
+(node:22030) [DEP0079] DeprecationWarning: Custom inspection function on Objects via .inspect() is deprecated
+TypeError: Converting circular structure to JSON
+    at JSON.stringify (<anonymous>)
+    at stringify (/var/www/cbt-api/node_modules/express/lib/response.js:1119:12)
+    at ServerResponse.json (/var/www/cbt-api/node_modules/express/lib/response.js:260:14)
+    at app.use (/var/www/cbt-api/app.js:42:7)
+    at Layer.handle_error (/var/www/cbt-api/node_modules/express/lib/router/layer.js:71:5)
+    at trim_prefix (/var/www/cbt-api/node_modules/express/lib/router/index.js:315:13)
+    at /var/www/cbt-api/node_modules/express/lib/router/index.js:284:7
+    at Function.process_params (/var/www/cbt-api/node_modules/express/lib/router/index.js:335:12)
+    at next (/var/www/cbt-api/node_modules/express/lib/router/index.js:275:10)
+    at /var/www/cbt-api/node_modules/express/lib/router/index.js:635:15

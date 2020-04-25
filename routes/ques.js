@@ -13,9 +13,6 @@ router.post('/updateQues', authCheck, quesController.updateQues);
 router.get('/getQuesData', authCheck, quesController.getQuesData);
 router.delete('/deleteQues', authCheck, quesController.deleteQues);
 
-
 // router.post('/addQues', authCheck, quesController.addQues);
-
-console.log('In routes');
 
 module.exports = router;

@@ -53,12 +53,14 @@ exports.addQues = (req, res, next) => {
     req.body.choiceB,
     req.body.choiceC,
     req.body.choiceD,
-    moment().format("YYYY-MM-DD HH:MM:ss")
+    moment().format("YYYY-MM-DD hh:mm:ss")
   ];
-  
-  console.log(fields); 
+
+  console.log(fields);
   let quesId = "";
   let choiceArray = [];
+  let totalQues = 0;
+  let totalAdded = 0;
   let valid = validation.quesValidate(fields);
 
   if (valid.error !== null) {
@@ -74,9 +76,13 @@ exports.addQues = (req, res, next) => {
       .checkQuestionCount(fields[0], fields[1])
       .then(result => {
         console.log("print result of questions count");
-        console.log(result[0]);
+
         let totalMarks = fields[5];
         if (result[0].length !== 0) {
+          console.log(result[0]);
+          totalQues = result[0][0].total_ques;
+          totalAdded = result[0].length;
+
           for (let mark of result[0]) {
             totalMarks = totalMarks + mark.marks;
           }
@@ -119,8 +125,8 @@ exports.addQues = (req, res, next) => {
               let param = [];
               for (let i = 0, x = 7, y = 8; i < 4; i++) {
                 param[i] = [results[0].insertId, fields[x], fields[y], fields[19]];
-                x = x+2;
-                y = y+2;
+                x = x + 2;
+                y = y + 2;
               }
               return db.query(
                 "insert into choice (ques_id, choice_text, choice_image, created_on) values ?",
@@ -128,16 +134,16 @@ exports.addQues = (req, res, next) => {
               );
             })
             .then(results => {
-              if (fields[10] === true) {
+              if (fields[15] === true) {
                 choiceArray.push(results[0].insertId);
               }
-              if (fields[11] === true) {
+              if (fields[16] === true) {
                 choiceArray.push(results[0].insertId + 1);
               }
-              if (fields[12] === true) {
+              if (fields[17] === true) {
                 choiceArray.push(results[0].insertId + 2);
               }
-              if (fields[13] === true) {
+              if (fields[18] === true) {
                 choiceArray.push(results[0].insertId + 3);
               }
               return db.execute(
@@ -154,7 +160,10 @@ exports.addQues = (req, res, next) => {
             .then(results => {
               sendResponse.sendResponseData(
                 "Data submitted successfully",
-                results,
+                {
+                  totalQues: totalQues,
+                  totalAdded: totalAdded
+                },
                 res
               );
             })
@@ -205,7 +214,7 @@ exports.updateQues = (req, res, next) => {
     req.body.choiceB,
     req.body.choiceC,
     req.body.choiceD,
-    moment().format("YYYY-MM-DD HH:MM:ss")
+    moment().format("YYYY-MM-DD hh:mm:ss")
   ];
   let quesId = "";
   let choiceArray = [];
@@ -296,16 +305,16 @@ exports.updateQues = (req, res, next) => {
             })
             .then(results => {
               console.log(results);
-              if (fields[15] === true) {
+              if (fields[20] === true) {
                 choiceArray.push(fields[7]);
               }
-              if (fields[16] === true) {
+              if (fields[21] === true) {
                 choiceArray.push(fields[8]);
               }
-              if (fields[17] === true) {
+              if (fields[22] === true) {
                 choiceArray.push(fields[9]);
               }
-              if (fields[18] === true) {
+              if (fields[23] === true) {
                 choiceArray.push(fields[10]);
               }
               return db.execute(

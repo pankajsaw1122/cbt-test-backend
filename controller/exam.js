@@ -169,46 +169,36 @@ exports.getExamData = (req, res, next) => {
     error.data = error;
     throw error;
   } else {
-    if (!req.query.id) {
-      return db
-        .execute("select * from exam where admin_id = ? ORDER BY id DESC", [
-          req.userId
-        ])
-        .then(results => {
-          results = results[0];
-          console.log(results);
-          sendResponse.sendResponseData(
-            "Exam data found successfully",
-            results,
-            res
-          );
-        })
-        .catch(err => {
-          console.log(err);
-          err.statusCode = 500;
-          err.message = "error in fetching data";
-          err.data = err.sqlMessage;
-          next(err);
-        });
+    let query = '';
+    let data = '';
+    if(req.query.candtId !== undefined) {
+      query = "select exam.exam_minute, candidates.left_minute from candidates LEFT JOIN exam ON candidates.allowed_exam_id = exam.id where candidates.allowed_exam_id = ? AND candidates.id = ?";
+      data = [req.query.id, req.query.candtId];
+    } else if (!req.query.id && req.query.candtId === undefined) {
+      query = "select * from exam where admin_id = ? ORDER BY id DESC";
+      data = [req.userId];
     } else {
-      return db
-        .execute("select * from exam where id = ?", [req.query.id])
-        .then(results => {
-          results = results[0];
-          sendResponse.sendResponseData(
-            "Exam data found successfully",
-            results,
-            res
-          );
-        })
-        .catch(err => {
-          console.log(err);
-          err.statusCode = 500;
-          err.message = "error in fetching data";
-          err.data = err.sqlMessage;
-          next(err);
-        });
+      query = "select * from exam where id = ?";
+      data = [req.query.id];
     }
+    return db
+      .execute(query, data)
+      .then(results => {
+        results = results[0];
+        console.log(results);
+        sendResponse.sendResponseData(
+          "Exam data found successfully",
+          results,
+          res
+        );
+      })
+      .catch(err => {
+        console.log(err);
+        err.statusCode = 500;
+        err.message = "error in fetching data";
+        err.data = err.sqlMessage;
+        next(err);
+      });
   }
 };
 
@@ -227,11 +217,11 @@ exports.deleteExam = (req, res, next) => {
       .execute("delete from exam where admin_id = ? AND id = ?", [req.userId, req.query.id])
       .then(results => {
         return db
-      .execute("delete from ques_categ where exam_id = ?", [req.query.id]);
+          .execute("delete from ques_categ where exam_id = ?", [req.query.id]);
       }).then(result => {
         return db
-      .execute(
-        'delete from questions, choice, answer_key USING questions INNER JOIN choice INNER JOIN answer_key where questions.id = choice.ques_id AND choice.ques_id = answer_key.ques_id AND questions.exam_id = ?', [req.query.id]);
+          .execute(
+            'delete from questions, choice, answer_key USING questions INNER JOIN choice INNER JOIN answer_key where questions.id = choice.ques_id AND choice.ques_id = answer_key.ques_id AND questions.exam_id = ?', [req.query.id]);
       }).then(results => {
         results = results[0];
         sendResponse.sendResponseData("Exam delete successfull", results, res);
@@ -254,8 +244,8 @@ exports.finishExam = (req, res, next) => {
     error.data = error;
     throw error;
   } else {
-    return db.execute("update candidates set allow_login = ?, allow_Exam = ?, isLoggedIn = ?, isGivingExam = ?, finished_exam = ?, updated_on = ? where id = ? AND allowed_exam_id = ?", 
-      [0, 0, 0, 0, 1, moment().format("YYYY-MM-DD HH:MM:ss"), req.userId, req.query.id])
+    return db.execute("update candidates set allow_login = ?, allow_Exam = ?, isLoggedIn = ?, isGivingExam = ?, left_minute = ?, finished_exam = ?, updated_on = ?, exam_end_time = ? where id = ? AND allowed_exam_id = ?",
+      [0, 0, 0, 0, 0, 1, moment().format("YYYY-MM-DD hh:mm:ss"), moment().format("YYYY-MM-DD hh:mm:ss"), req.userId, req.query.id])
       .then(results => {
         sendResponse.sendResponseData("Exam Submitted successfully", results, res);
       })

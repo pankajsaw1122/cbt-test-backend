@@ -33,8 +33,8 @@ exports.authAdmin = (req, res, next) => {
                                 userId: results[0][0].id
                             },
                                 'weareworkingoncbttestapplication', {
-                                    expiresIn: '6h'
-                                }
+                                expiresIn: '6h'
+                            }
                             );
                             sendResponse.sendResponseData("User login successfull", {
                                 adminId: results[0][0].id,
@@ -56,24 +56,40 @@ exports.authAdmin = (req, res, next) => {
 }
 
 exports.changePassword = (req, res, next) => {
-    const fields = [req.body.email, req.body.password, moment().format('YYYY-MM-DD HH:MM:ss')];
-        bcrypt.hash(fields[1], 4).then(function (hash) {
-            return db.execute(
-                'update admin set password = ?, updated_on = ? where email = ?',
-                [hash, fields[2], fields[0]], {
-                });
-        }).then(results => {
-            sendResponse.sendResponseData("Password reset successfull", {
-                password: results,
-                email: fields[2],
-            }, res);
-        }).catch(err => {
-            err.statusCode = 400;
-            err.message = "error in updating data";
-            err.data = err.sqlMessage;
-            next(err);
+    console.log('Priny req body ');
+    console.log(req.body);
+    console.log(req.userId);
+
+
+    const fields = [req.body.currentPassword, req.body.newPassword, moment().format('YYYY-MM-DD hh:mm:ss')];
+    return db.execute('select password from admin where id = ?', [req.userId]).then(result => {
+        console.log(result[0][0].password);
+        return bcrypt.compare(req.body.currentPassword, result[0][0].password);
+    }).then(result => {
+        console.log('Compare result');
+        console.log(result);
+        if (result === true) {
+            return bcrypt.hash(req.body.newPassword, 2);
+        } else {
+            const err = new Error("Incorrect password");
+            err.message = "Incorrect password given";
+            throw err;
+        }
+    }).then(hash => {
+        return db.execute('update admin set password = ?, updated_on = ? where id = ?',
+            [hash, moment().format('YYYY-MM-DD hh:mm:ss'), req.userId], {
         });
-    }
+    }).then(results => {
+        sendResponse.sendResponseData("Password reset successfull", {
+        }, res);
+    }).catch(err => {
+        console.log(err);
+        err.statusCode = 400;
+        err.message = "error in updating data";
+        err.data = err.sqlMessage;
+        next(err);
+    });
+}
 
 
 exports.authCandt = (req, res, next) => {
@@ -86,7 +102,7 @@ exports.authCandt = (req, res, next) => {
         throw error;
     } else {
         db.execute(
-            'Select candidates.id, candidates.fname, candidates.lname, candidates.roll_no, candidates.classes, candidates.email, candidates.mobile_no, candidates.allow_login, candidates.allow_exam, candidates.password, exam.id as examId, exam.exam_name from candidates LEFT JOIN exam ON candidates.allowed_exam_id = exam.id where candidates.roll_no = ?',
+            'Select candidates.id, candidates.fname, candidates.lname, candidates.roll_no, candidates.classes, candidates.email, candidates.mobile_no, candidates.allow_login, candidates.allow_exam, candidates.password, exam.id as examId, exam.exam_name, exam.exam_minute, exam.total_marks, exam.total_ques from candidates LEFT JOIN exam ON candidates.allowed_exam_id = exam.id where candidates.roll_no = ?',
             [fields[0]])
             .then(results => {
                 if (results[0].length === 0) {
@@ -101,8 +117,8 @@ exports.authCandt = (req, res, next) => {
                             userId: results[0][0].id
                         },
                             'weareworkingoncbttestapplication', {
-                                expiresIn: '6h'
-                            }
+                            expiresIn: '6h'
+                        }
                         );
                         if (results[0][0].allow_login === 1) {
                             console.log(results[0][0]);

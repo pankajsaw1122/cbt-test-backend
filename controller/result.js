@@ -28,7 +28,7 @@ exports.getMarksData = (req, res, next) => {
 }
 
 exports.saveResult = (req, res, next) => {
-    const fields = [req.userId, parseInt(req.body.examId), req.body.totalAnswerCount, req.body.positiveCount, req.body.positiveMark, req.body.negCount, req.body.negMark, req.body.finalExamMark, moment().format('YYYY-MM-DD HH:MM:ss')]
+    const fields = [req.userId, parseInt(req.body.examId), req.body.totalAnswerCount, req.body.positiveCount, req.body.positiveMark, req.body.negCount, req.body.negMark, req.body.finalExamMark, moment().format('YYYY-MM-DD hh:mm:ss')]
     let valid = validation.resultValidate(fields);
     console.log(fields);
     if (valid.error !== null) {
@@ -72,8 +72,6 @@ exports.saveResult = (req, res, next) => {
 
 exports.getResultData = (req, res, next) => {
     console.log(req.query.examId);
-    console.log(req.query.classes);
-
 
     if (!req.userId || !req.query.examId || !req.query.classes) {
         console.log(valid.error)
